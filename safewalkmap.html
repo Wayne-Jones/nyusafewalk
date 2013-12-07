@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" class=" js no-touch">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<title>NYU SafeWalk - Walk Home With Safety In Mind</title>
+
+		<!-- Bootstrap core CSS -->
+		<link href="css/bootstrap.css" rel="stylesheet">
+
+		<!-- Custom styles for this template -->
+		<link href="css/main.css" rel="stylesheet">
+
+		<link rel="stylesheet" href="css/font-awesome.min.css">
+
+		<!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+		<!--[if lt IE 9]>
+		  <script src="js/html5shiv.js"></script>
+		  <script src="js/respond.min.js"></script>
+		<![endif]-->
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="js/modernizr.custom.js"></script>
+		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+		<script type="text/javascript">
+			var rendererOptions = {
+				draggable: true
+			};
+			var geocoder;
+			var directionsDisplay= new google.maps.DirectionsRenderer(rendererOptions);;
+			var directionsService = new google.maps.DirectionsService();
+			var map;
+			var crimeLocations = [
+			["Larceny", "12/01/2013", "05:00PM", 40.729795,  -73.997748, "On time and date of report an assistant manager states that between 10am November 30th and 9:30am on date of report several clothing/costume items and an iPod of unknown value were taken from a dressing room on the SC level. Declined police notification."],
+			["Larceny", "12/02/2013", "6:35PM", 40.729373, -73.994572, "On time and date of report, a staff member states that between November 27th and date of report, her secured bicycle valued at $150 was taken from a scaffold located near the corner of Mercer Strret and Washington Place. Declined police notification."],
+			["Larceny", "12/02/2013", "6:05PM", 40.729438, -73.997276, "On time and date of report, a student states that between 4:30pm and 5pm on date of report, a ring with clear stones was taken from a 6th floor ladies restroom when the complainant fdailed to place the ring back on her finger. Declined police notification"],
+			["Larceny", "12/02/2013", "7:30PM", 40.730852, -74.000001,"On time and date of report, a student states that between 6:15pm and 6:25pm, an unidentified individual was given access to a classroom where it is believed the individual removed the student's backpack containing a laptop computer of unknown value. NYPD notified and a police report was filed."],
+			["Larceny", "12/04/2013", "12:25PM", 40.730852, -74.000001,"On time and date of report, a non NYU affiliated individual states at approximately 11:45am on date of report, someone had taken her I-phone of undetermined value while in a room on the 2nd floor. She further states she was told by an unidentified male that he had turned in the phone to security in the lobby. This information proved to be false. Declined police notification."],
+			["Larceny", "12/04/2013", "7:20PM", 40.729747, -73.996289, "On time and date of report, a student states that between 7pm and 7:05pm on date of report, her I-phone valued at $600 was taken from the table she was sitting at. She suspects that the theft occurred while two unidentified individuals approached her asking her to sign a petition. NYPD notified and a polcie report was filed."],
+			["Larceny", "12/04/2013", "10:00PM", 40.733519, -73.988156, "On time and date of report, a student states that between 7:50pm and 8:40pm on date of report, her Mac laptop computer valued at $1,700 was taken from a secured locker in the locker room. NYPD notified but did not take a report."],
+			["Criminal Mischief", "11/23/2013", "12:57PM", 40.732137, -73.991954, "On time and date of report, Public Safety was aaprised that between 11pm on November 22nd and time/date of report, non bias graffiti was written on an outside window of the building. It is unknown who is responsible."],
+			["Harassment", "11/22/2013", "2:46PM", 40.727893, -73.995667, "On time and date of report, a staff member states receiving threatening emails from a person known to this department."],
+			["Larceny", "11/20/2013", "8:40PM", 40.728023, -73.995667, "On time and date of report, a student states that between 6:15pm and 8:30pm on date of report, a bag containing new clothes she just purchased and valued at $262.50 was taken from an area on the UC level while the property was left unattended. Declined police notification at this time."],
+			["Larceny", "11/20/2013", "3:50PM", 40.730869, -73.997598, "On time and date of report, a student states that between 3:30pm and 3:40pm on date of report, his backpack containing a Mac laptop computer valued at $1,500 was taken from a park bench while he was sitting. NYPD notified and a police report was filed."],
+			["Larceny", "11/19/2013", "11:45AM", 40.729535, -73.996589, "On time and date of report, A public Safety oficer observed an unidentified individual removing two wheels from a bicycle secured in Schwartz Plaza. Upon his approach to the individual at West 3rd Street, the individual dropped the property and fled. Property returned to owner. Declined police notification"],
+			["Larceny", "11/19/2013", "10:51AM", 40.730495, -73.99955,"On time and date of report, Public Safety was apprised of various credit card frauds occurring since the beginning of November."],
+			["Larceny", "11/18/2013", "12:00PM", 40.729324, -73.993027, "On time and date of report, an NYU student was observed concealing 2 NYU brand caps valued at $51.90 and then walking out of the store without paying for the merchandise."],
+			["Larceny", "11/17/2013", "5:00PM", 40.726722, -73.997319,"On time and date of report, a student states that between 2:30pm and 4:58pm on date of report, $200 (USC) and a $40 gift card were taken from her wallet which was left unattended in the women's locker room. NYPD notified and a police report was filed."]
+			];
+			function initialize() {
+				geocoder = new google.maps.Geocoder();
+				var nyu = new google.maps.LatLng(40.730869, -73.997218);
+				var mapOptions = {
+					zoom:15,
+					center: nyu
+				}
+				map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+				directionsDisplay.setMap(map);
+				directionsDisplay.setPanel(document.getElementById('directionsPanel'));
+				addCrimeMarkers();
+				
+			}
+			function bindInfoWindow(marker, map, infowindow, strDescription) {
+				google.maps.event.addListener(marker, 'click', function() {
+					infowindow.setContent(strDescription);
+					infowindow.open(map, marker);
+				});
+			}
+			function addCrimeMarkers() {
+				for(var i=0;i<crimeLocations.length;i++){
+					var marker = new google.maps.Marker({
+						position: new google.maps.LatLng(crimeLocations[i][3], crimeLocations[i][4]),
+						map: map
+					});
+					var contentString = '<div id="popupTitle">Category: '+crimeLocations[i][0]+'<div id="popupDate">Reported Date: '+crimeLocations[i][1]+'</div><br><div id="popupTime">Reported Time: '+crimeLocations[i][2]+'</div><br><div id="content">Incident Summary: '+crimeLocations[i][5]+'</div>';
+					var infowindow = new google.maps.InfoWindow({
+						content: contentString
+					});
+					bindInfoWindow(marker, map, infowindow, contentString);
+				}
+				
+			}
+			function calcRoute() {
+				var start = document.getElementById("startingLocation").value;
+				var end = document.getElementById("dormDropdown").value;
+				//Manually add locations for NYU Dorms
+				if(end=="Alumni"){
+					end = "33 Third Avenue New York, NY 10003";
+				}
+				if(end=="Brittany"){
+					end = "55 East 10th Street New York, NY 10003";
+				}
+				if(end=="Broome"){
+					end = "400 Broome St. New York, NY 10013";
+				}
+				if(end=="Carlyle"){
+					end = "25 Union Square West New York, NY 10003";
+				}
+				if(end=="Coral"){
+					end = "129 Third Avenue New York, NY 10003";
+				}
+				if(end=="Founders"){
+					end = "120 East 12th Street New York, NY 10003";
+				}
+				if(end=="Goddard"){
+					end = "79 Washington Square East New York, NY 10003";
+				}
+				if(end=="Gramercy"){
+					end = "310 3rd Avenue New York, NY 10010";
+				}
+				if(end=="Green"){
+					end = "40 East Seventh Street New York, NY 10003";
+				}
+				if(end=="Greenwich"){
+					end = "636 Greenwich Street New York, NY 10014";
+				}
+				if(end=="Hayden"){
+					end = "33 Washington Square West New York, NY 10011";
+				}
+				if(end=="Lafayette"){
+					end = "80 Lafayette Street New York, NY 10013";
+				}
+				if(end=="Palladium"){
+					end = "140 East 14th Street New York, NY 10003";
+				}
+				if(end=="Rubin"){
+					end = "35 Fifth Avenue New York, NY 10003";
+				}
+				if(end=="SecondStreet"){
+					end = "1 East 2nd Street New York, NY 10003";
+				}
+				if(end=="SeniorHouse"){
+					end = "47 West 13th Street New York, NY 10011";
+				}
+				if(end=="ThirdNorth"){
+					end = "75 Third Avenue New York, NY 10003";
+				}
+				if(end=="University"){
+					end = "110 East 14th Street New York, NY 10003";
+				}
+				if(end=="Weinstein"){
+					end = "5-11 University Place New York, NY 10003";
+				}
+				var request = {
+					origin:start,
+					destination:end,
+					travelMode: google.maps.TravelMode.WALKING
+				};
+				directionsService.route(request, function(result, status){
+					if (status == google.maps.DirectionsStatus.OK){
+						if($("#alert").find('#alertMessage').length){
+							//Alert is already displaying on the screen
+							$("#alertMessage").remove();
+						}
+						$("#alert").prepend('<div id="alertMessage" class="alert alert-success alert-dismissable">Congrats! You can check out your SafeWalk path below.</div>');
+						directionsDisplay.setDirections(result);
+					}
+					else{
+						//Could not find a path with the given locations
+						if($("#alert").find('#alertMessage').length){
+								//Alert is already displaying on the screen
+								$("#alertMessage").remove();
+							}
+						$("#alert").prepend('<div id="alertMessage" class="alert alert-danger alert-dismissable">Your search could not be completed with your given location.</div>');
+					}
+				});
+			}
+		google.maps.event.addDomListener(window, 'load', initialize);
+		</script>
+		
+		<script>
+		$(function () { $("[data-toggle='tooltip']").tooltip(); });
+		</script>
+		<script>
+		$('.carousel').carousel({
+		  interval: 3500
+		})
+		</script>    
+		<link href="http://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic" rel="stylesheet" type="text/css">
+		<link href="http://fonts.googleapis.com/css?family=Raleway:400,300,700" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+	<!-- Fixed navbar -->
+		<div class="navbar navbar-default navbar-fixed-top">
+		  <div class="container">
+			<div class="navbar-header">
+			  <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			  </button>
+			  <a class="navbar-brand" href="#"><b>NYU SafeWalk</b></a>
+			</div>
+			<div class="navbar-collapse collapse">
+			  <ul class="nav navbar-nav">
+				<li><a href="index.html">Home</a></li>
+				<li class="active"><a href="safewalkmap.html">NYU SafeWalk Map</a></li>
+			  </ul>
+			</div><!--/.nav-collapse -->
+		  </div>
+		</div>
+		
+	<div id="searchWrapper">
+		<div class="container">
+			<div id="alert"></div>
+			<form class="form-horizontal" id="my-form" role="form" onSubmit="calcRoute(); return false;">
+				<div class="form-group">
+					<label for="startLocation" class="col-sm-2 control-label">Starting Location:</label> 
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="startingLocation" placeholder="Insert Your Location" style="height: 45px;">
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="dormLocation" class="col-sm-2 control-label">Dorm Location:</label>
+					<div class="col-sm-10">
+						<select class="form-control" id="dormDropdown" style="height: 45px;">
+							<option value="Alumni">Alumni Hall</option>
+							<option value="Brittany">Brittany Hall</option>
+							<option value="Broome">Broome Street</option>
+							<option value="Carlyle">Carlyle Court</option>
+							<option value="Coral">Coral Tower</option>
+							<option value="Founders">Founders Hall</option>
+							<option value="Goddard">Goddard Hall</option>
+							<option value="Gramercy">Gramercy Green</option>
+							<option value="Green">Green House</option>
+							<option value="Greenwich">Greenwich Hotel</option>
+							<option value="Hayden">Hayden Hall</option>
+							<option value="Lafayette">Lafayette Hall</option>
+							<option value="Palladium">Palladium Hall</option>
+							<option value="Rubin">Rubin Hall</option>
+							<option value="SecondStreet">Second Street</option>
+							<option value="SeniorHouse">Senior House 13th Street</option>
+							<option value="ThirdNorth">Third Avenue North</option>
+							<option value="University">University Hall</option>
+							<option value="Weinstein">Weinstein Hall</option>
+						</select>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button type="submit" class="btn btn-default">Search</button>
+					</div>
+				</div>
+			</form>
+		</div><!-- /container -->
+    </div> <!-- /searchWrapper -->
+	
+	<div id="map-canvas"></div>
+	<div class="container">
+		<div id="directionsPanel" style="padding-top:10px; padding-bottom:10px"></div>
+	</div>
+	
+	<!-- Footer Wrap -->
+	<div id="f">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-4">
+					<h3>About Smart</h3>
+					<p>There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable.</p>
+				</div>
+				<div class="col-lg-4">
+					<h3>Our Studio</h3>
+					<p>
+						Some Ave. 987<br>
+						Liverpool, <br>
+						United Kingdom.<br>
+						+44 5784-4343
+					</p>
+				</div>
+				<div class="col-lg-4">
+					<h3>Newsletter</h3>
+					<p>Each month we collect the best stuff around the design world and share it with you.</p>
+					<button type="button" class="btn btn-theme">SUBSCRIBE</button>
+				</div>
+			
+			</div><!-- /row -->
+		</div><!-- /container -->
+	</div><!-- /Footer wrap -->
+	
+	<div id="c">
+		<div class="container">
+			<div class="pull-right">
+			<p>Crafted with  <i class="icon-heart"></i>  by Alvarez.is</p>
+			</div>
+		</div>
+	</div>
+	
+	
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+   
+	</body>
+</html>
